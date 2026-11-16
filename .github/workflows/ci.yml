@@ -1,0 +1,31 @@
+name: Integracion Continua (CI)
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Compilar y ejecutar pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compilar el modulo
+        run: javac -d build/classes src/main/java/ecuacionsegundogradomain/Main.java
+
+      - name: Compilar y ejecutar pruebas
+        run: |
+          javac -d build/classes -cp build/classes \
+            test/EcuacionSegundoGradoTest.java
+          java -ea -cp build/classes \
+            ecuacionsegundogradomain.EcuacionSegundoGradoTest
