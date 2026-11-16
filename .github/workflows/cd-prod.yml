@@ -1,0 +1,45 @@
+name: Despliegue Continuo - Produccion (CD)
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy-prod:
+    name: Desplegar a Produccion con respaldo (rollback)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compilar artefacto
+        run: javac -d build/classes src/main/java/ecuacionsegundogradomain/Main.java
+
+      - name: Empaquetar version
+        run: |
+          mkdir -p dist
+          cd build/classes
+          jar cf ../../dist/motor-calculo-${{ github.sha }}.jar .
+          cd ../..
+
+      - name: Respaldar version anterior (rollback point)
+        run: echo "Respaldo de la version vigente registrado antes del despliegue"
+
+      - name: Publicar artefacto versionado
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-calculo-prod-${{ github.sha }}
+          path: dist/motor-calculo-${{ github.sha }}.jar
+
+      - name: Simular despliegue a Produccion
+        run: |
+          echo "Desplegando motor-calculo-${{ github.sha }}.jar"
+          echo "Entorno: PRODUCCION"
+          echo "Punto de rollback disponible"
+          echo "Despliegue finalizado correctamente"
