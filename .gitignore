@@ -1,0 +1,4 @@
+# Artefactos de compilacion y empaquetado (los genera el pipeline de CI/CD)
+build/
+dist/
+*.class
